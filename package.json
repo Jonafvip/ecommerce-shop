@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node src/server.ts"
+    "dev": "nodemon --exec npx tsx src/server.ts"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "@typescript-eslint/parser": "^8.55.0",
     "nodemon": "^3.1.11",
     "prisma": "^7.3.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
