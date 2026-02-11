@@ -2,18 +2,20 @@ import { config } from "dotenv";
 config();
 import express from "express";
 import authRoute from "./routes/auth.route.js";
-import productRoute from './routes/product.route.js'
+import productRoute from "./routes/product.route.js";
+import cartRoute from "./routes/cart.route.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 //Rutas
 app.use("/api/v1/auth", authRoute);
-app.use("/api/v1/admin/product",productRoute)
+app.use("/api/v1/auth/cart", cartRoute);
+app.use("/api/v1/admin/product", productRoute);
 
 const PORT = process.env.PORT;
 

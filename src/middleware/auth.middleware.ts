@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 
 //datos que deberian estar en la firmacion del token
 interface UserPayload {
-  id: string;
+  id: number;
   role: string;
 }
 
