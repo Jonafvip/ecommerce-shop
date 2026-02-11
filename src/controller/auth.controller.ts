@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma.config.js";
 import { Prisma } from "../generated/prisma/client.js";
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
+import { authToken } from "../utils/auth.utils.js";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -81,7 +82,20 @@ export const login = async (req: Request, res: Response) => {
     const isMatch = await bcrypt.compare(password, userExisting.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid user" });
 
-    return res.status(200).json({ message: "Successful login", success: true });
+    const token = authToken(userExisting.id, userExisting.role);
+
+    res.cookie("jwt", token, { httpOnly: true, sameSite: "strict" });
+
+    return res.status(200).json({
+      message: "Successful login",
+      success: true,
+      data: {
+        id: userExisting.id,
+        email: userExisting.email,
+        role: userExisting.role,
+      },
+      token,
+    });
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       console.log("Error of Prisma:", error.code);
