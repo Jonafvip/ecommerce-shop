@@ -18,8 +18,6 @@ export const register = async (req: Request, res: Response) => {
       where: { OR: [{ email: email }, { username: username }] },
     });
 
-    console.log(userExisting);
-
     if (userExisting) {
       return res.status(400).json({ message: "This user already exists" });
     }
