@@ -110,3 +110,19 @@ export const login = async (req: Request, res: Response) => {
     }
   }
 };
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("jwt");
+    return res.status(200).json({ message: "Successful session closure" });
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.json({
+        message: "The session could not be closed.",
+        error: error.message,
+      });
+    } else {
+      return res.json({ message: "Internal server problems", error: error });
+    }
+  }
+};
