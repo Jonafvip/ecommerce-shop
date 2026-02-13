@@ -1,5 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
 export const registerValidation = z.object({
   username: z
@@ -20,23 +19,3 @@ export const loginValidation = z.object({
   email: z.string().email(),
   password: z.string().min(1, { error: "Password is required" }),
 });
-
-export const validationSchema =
-  (schema: z.ZodObject<any>) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      req.body = await schema.parseAsync(req.body);
-      return next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({
-          status: "fail",
-          errors: error.issues.map((issue) => ({
-            path: issue.path,
-            message: issue.message,
-          })),
-        });
-      }
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
-  };
