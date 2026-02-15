@@ -8,19 +8,24 @@ import orderRoute from "./routes/order.route.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import helmet from "helmet";
+import { limiter, speedLimiter } from "./utils/limitRequets.utils.js";
 
 const app = express();
+app.use(morgan("dev"));
+app.use(helmet());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: [process.env.HOST_FRONTEND || "Unknown"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use(express.json());
 app.use(cookieParser());
-app.use(morgan("dev"));
+app.use(limiter);
+app.use(speedLimiter);
+app.use(express.json({ limit: "10kb" }));
 
 //Rutas
 app.use("/api/v1/auth", authRoute);
