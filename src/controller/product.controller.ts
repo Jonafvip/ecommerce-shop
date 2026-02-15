@@ -2,6 +2,41 @@ import { prisma } from "../config/prisma.config.js";
 import { Prisma } from "../generated/prisma/client.js";
 import type { Request, Response } from "express";
 
+export const getAllProducts = async (req: Request, res: Response) => {
+  try {
+    const product = await prisma.product.findMany({});
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    return res.status(200).json({  product , success: true });
+  } catch (error) {
+    console.log("Product Error", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
+export const getProductId = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const productId = await prisma.product.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!productId)
+      return res.status(404).json({ message: "Product not found" });
+
+    return res.status(200).json({ data: { productId } });
+  } catch (error) {
+    console.log("Product Error", error);
+    return res.status(500).json({
+      message: "Internal server Error",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
 export const createProducts = async (req: Request, res: Response) => {
   try {
     const { name, description, stock, price } = req.body;
