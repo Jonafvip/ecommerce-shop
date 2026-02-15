@@ -3,6 +3,8 @@ import { verify, isAdmin } from "../middleware/auth.middleware.js";
 import {
   createProducts,
   deleteProduct,
+  getAllProducts,
+  getProductId,
   updateProduct,
 } from "../controller/product.controller.js";
 import { validationSchema } from "../validation/schemaValidation.js";
@@ -14,7 +16,11 @@ import {
 
 const productRoute = Router();
 
-productRoute.use(verify, isAdmin);
+productRoute.use(verify);
+productRoute.get("/", getAllProducts);
+productRoute.get("/:id", getProductId);
+
+productRoute.use(isAdmin);
 productRoute.post(
   "/",
   validationSchema(CreateProductValidation),
