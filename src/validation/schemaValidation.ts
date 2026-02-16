@@ -16,7 +16,7 @@ export const validationSchema =
           status: "fail",
           location: location,
           errors: error.issues.map((issue) => ({
-            path: issue.path,
+            path: issue.path.join("."),
             message: issue.message,
           })),
         });
