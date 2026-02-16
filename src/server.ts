@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import { limiter, speedLimiter } from "./utils/limitRequets.utils.js";
+import { errorHandler } from "./middleware/errorHandlerMiddleware.js";
 
 export const app = express();
 app.use(morgan("dev"));
@@ -33,6 +34,7 @@ app.use("/api/v1/auth/cart", cartRoute);
 app.use("/api/v1/auth/orderCart", orderRoute);
 app.use("/api/v1/admin/product", productRoute);
 
+app.use(errorHandler);
 const PORT = process.env.PORT;
 
 if (process.env.NODE_ENV !== "test") {
