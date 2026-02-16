@@ -11,6 +11,8 @@ import cors from "cors";
 import helmet from "helmet";
 import { limiter, speedLimiter } from "./utils/limitRequets.utils.js";
 import { errorHandler } from "./middleware/errorHandlerMiddleware.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./docs/swagger-docs.js";
 
 export const app = express();
 app.use(morgan("dev"));
@@ -27,6 +29,7 @@ app.use(cookieParser());
 app.use(limiter);
 app.use(speedLimiter);
 app.use(express.json({ limit: "10kb" }));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //Rutas
 app.use("/api/v1/auth", authRoute);
