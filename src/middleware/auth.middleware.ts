@@ -50,17 +50,18 @@ export const isAdmin = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.user) return res.status(401).json({ message: "No authenticate" });
+    if (!req.user)
+      return res.status(401).json({ message: "Not authenticated" });
     if (req.user.role !== "ADMIN") {
       return res
-        .status(401)
+        .status(403)
         .json({ message: "Access denied: administrator permissions required" });
     }
     return next();
   } catch (error) {
-    return res.status(401).json({
+    return res.status(500).json({
       message: "Error verifying permissions",
-      error: error instanceof Error ? error.message : "unkown error",
+      error: error instanceof Error ? error.message : "unknown error",
     });
   }
 };
