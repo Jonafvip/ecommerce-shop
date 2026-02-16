@@ -1,23 +1,21 @@
 import { prisma } from "../config/prisma.config.js";
 import type { Request, Response } from "express";
+import { catchAsync } from "../middleware/errorHandlerMiddleware.js";
+import { AppError } from "../errors/server.error.js";
 
-export const addProductToCart = async (req: Request, res: Response) => {
-  try {
+export const addProductToCart = catchAsync(
+  async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
     const { quantity = 1 } = req.body;
 
-    if (!userId) {
-      return res.status(401).json({ message: "User not authenticated" });
-    }
+    if (!userId) throw new AppError("User not authenticated", 401);
 
     const productCart = await prisma.product.findFirst({
       where: { id: Number(id) },
     });
 
-    if (!productCart) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!productCart) throw new AppError("Product not found", 404);
 
     let cartItem = await prisma.cart.findFirst({
       where: {
@@ -30,9 +28,10 @@ export const addProductToCart = async (req: Request, res: Response) => {
       // Si ya existe, validamos el stock total (existente + nuevo)
       const newQuantity = cartItem.quantity + quantity;
       if (productCart.stock < newQuantity) {
-        return res.status(400).json({
-          message: `Insufficient stock. Only ${productCart.stock} units available in total.`,
-        });
+        throw new AppError(
+          `Insufficient stock. Only ${productCart.stock} units available in total.`,
+          400
+        );
       }
 
       // Actualizamos la cantidad
@@ -43,9 +42,10 @@ export const addProductToCart = async (req: Request, res: Response) => {
     } else {
       // Si no existe, validamos el stock para la cantidad inicial
       if (productCart.stock < quantity) {
-        return res.status(400).json({
-          message: `Insufficient stock. Only ${productCart.stock} units available.`,
-        });
+        throw new AppError(
+          `Insufficient stock. Only ${productCart.stock} units available.`,
+          400
+        );
       }
 
       // Creamos el nuevo item en el carrito
@@ -58,21 +58,16 @@ export const addProductToCart = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       message: cartItem ? "Cart updated correctly" : "Product added to cart",
       data: cartItem,
       success: true,
     });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : error,
-    });
   }
-};
+);
 
-export const removeProductFromCart = async (req: Request, res: Response) => {
-  try {
+export const removeProductFromCart = catchAsync(
+  async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -83,9 +78,7 @@ export const removeProductFromCart = async (req: Request, res: Response) => {
       where: { id: Number(id) },
     });
 
-    if (!productCart) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!productCart) throw new AppError("Product not found", 404);
 
     const cartProduct = await prisma.cart.deleteMany({
       where: {
@@ -94,47 +87,36 @@ export const removeProductFromCart = async (req: Request, res: Response) => {
       },
     });
 
-    if (cartProduct.count === 0) {
-      return res.status(404).json({
-        message: "The product was not found in the cart for this user.",
-      });
-    }
+    if (cartProduct.count === 0)
+      throw new AppError(
+        "The product was not found in the cart for this user.",
+        404
+      );
     return res.status(200).json({
       message: "product disposed correctly",
       deleteCount: cartProduct,
     });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : error,
-    });
   }
-};
+);
 
-export const emptyCart = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.id;
+export const emptyCart = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
 
-    const cartProduct = await prisma.cart.deleteMany({
-      where: {
-        userId: userId!,
-      },
-    });
+  const cartProduct = await prisma.cart.deleteMany({
+    where: {
+      userId: userId!,
+    },
+  });
 
-    if (cartProduct.count === 0) {
-      return res.status(404).json({
-        message: "The product was not found in the cart for this user.",
-      });
-    }
-
-    return res.status(200).json({
-      message: "Cart emptied successfully",
-      deletedCount: cartProduct.count,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : error,
-    });
+  if (cartProduct.count === 0) {
+    throw new AppError(
+      "The product was not found in the cart for this user.",
+      404
+    );
   }
-};
+
+  return res.status(200).json({
+    message: "Cart emptied successfully",
+    deletedCount: cartProduct.count,
+  });
+});
