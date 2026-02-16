@@ -9,13 +9,13 @@ export const addProductToCart = catchAsync(
     const { id } = req.params;
     const { quantity = 1 } = req.body;
 
-    if (!userId) throw new AppError("User not authenticated", 401);
+    if (!userId) throw new AppError("Not authenticated", 401);
 
-    const productCart = await prisma.product.findFirst({
+    const product = await prisma.product.findFirst({
       where: { id: Number(id) },
     });
 
-    if (!productCart) throw new AppError("Product not found", 404);
+    if (!product) throw new AppError("Product not found", 404);
 
     let cartItem = await prisma.cart.findFirst({
       where: {
@@ -25,30 +25,26 @@ export const addProductToCart = catchAsync(
     });
 
     if (cartItem) {
-      // Si ya existe, validamos el stock total (existente + nuevo)
       const newQuantity = cartItem.quantity + quantity;
-      if (productCart.stock < newQuantity) {
+      if (product.stock < newQuantity) {
         throw new AppError(
-          `Insufficient stock. Only ${productCart.stock} units available in total.`,
+          `Insufficient stock. Only ${product.stock} units available in total.`,
           400
         );
       }
 
-      // Actualizamos la cantidad
       cartItem = await prisma.cart.update({
         where: { id: cartItem.id },
         data: { quantity: newQuantity },
       });
     } else {
-      // Si no existe, validamos el stock para la cantidad inicial
-      if (productCart.stock < quantity) {
+      if (product.stock < quantity) {
         throw new AppError(
-          `Insufficient stock. Only ${productCart.stock} units available.`,
+          `Insufficient stock. Only ${product.stock} units available.`,
           400
         );
       }
 
-      // Creamos el nuevo item en el carrito
       cartItem = await prisma.cart.create({
         data: {
           userId: userId,
@@ -59,9 +55,9 @@ export const addProductToCart = catchAsync(
     }
 
     res.status(200).json({
-      message: cartItem ? "Cart updated correctly" : "Product added to cart",
-      data: cartItem,
       success: true,
+      message: "Product added to cart successfully",
+      data: cartItem,
     });
   }
 );
@@ -71,30 +67,28 @@ export const removeProductFromCart = catchAsync(
     const userId = req.user?.id;
     const { id } = req.params;
 
-    if (!userId)
-      return res.status(401).json({ message: "User not authenticated" });
+    if (!userId) throw new AppError("Not authenticated", 401);
 
-    const productCart = await prisma.product.findFirst({
+    const product = await prisma.product.findFirst({
       where: { id: Number(id) },
     });
 
-    if (!productCart) throw new AppError("Product not found", 404);
+    if (!product) throw new AppError("Product not found", 404);
 
-    const cartProduct = await prisma.cart.deleteMany({
+    const deletedItem = await prisma.cart.deleteMany({
       where: {
-        userId: userId!,
+        userId: userId,
         productId: Number(id),
       },
     });
 
-    if (cartProduct.count === 0)
-      throw new AppError(
-        "The product was not found in the cart for this user.",
-        404
-      );
+    if (deletedItem.count === 0) {
+      throw new AppError("Product was not found in the cart", 404);
+    }
+
     return res.status(200).json({
-      message: "product disposed correctly",
-      deleteCount: cartProduct,
+      success: true,
+      message: "Product removed from cart successfully",
     });
   }
 );
@@ -102,21 +96,18 @@ export const removeProductFromCart = catchAsync(
 export const emptyCart = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
-  const cartProduct = await prisma.cart.deleteMany({
-    where: {
-      userId: userId!,
-    },
+  if (!userId) throw new AppError("Not authenticated", 401);
+
+  const deletedItems = await prisma.cart.deleteMany({
+    where: { userId },
   });
 
-  if (cartProduct.count === 0) {
-    throw new AppError(
-      "The product was not found in the cart for this user.",
-      404
-    );
+  if (deletedItems.count === 0) {
+    throw new AppError("Cart is already empty", 404);
   }
 
   return res.status(200).json({
+    success: true,
     message: "Cart emptied successfully",
-    deletedCount: cartProduct.count,
   });
 });
