@@ -23,7 +23,7 @@ export const createOrder = catchAsync(async (req: Request, res: Response) => {
   for (const item of cartItems) {
     if (item.quantity > item.product.stock) {
       throw new AppError(
-        "`Insufficient stock for ${item.product.name}. Only ${item.product.stock} left.`",
+        `Insufficient stock for ${item.product.name}. Only ${item.product.stock} left.`,
         400
       );
     }
@@ -66,8 +66,8 @@ export const createOrder = catchAsync(async (req: Request, res: Response) => {
   });
 
   res.status(201).json({
-    message: "Order placed correctly",
-    order: newOrder,
     success: true,
+    message: "Order placed successfully",
+    data: newOrder,
   });
 });
