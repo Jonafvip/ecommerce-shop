@@ -11,7 +11,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { limiter, speedLimiter } from "./utils/limitRequets.utils.js";
 
-const app = express();
+export const app = express();
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(
@@ -35,6 +35,8 @@ app.use("/api/v1/admin/product", productRoute);
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
-  console.log(`server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`server running on port ${PORT}`);
+  });
+}
