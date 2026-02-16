@@ -5,22 +5,29 @@ import { AppError } from "../errors/server.error.js";
 
 export const getAllProducts = catchAsync(
   async (req: Request, res: Response) => {
-    const product = await prisma.product.findMany({});
-    if (!product) throw new AppError("Product not found", 404);
+    const products = await prisma.product.findMany({});
 
-    res.status(200).json({ product, success: true });
+    res.status(200).json({
+      success: true,
+      message: "Products retrieved successfully",
+      data: products,
+    });
   }
 );
 
 export const getProductId = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const productId = await prisma.product.findUnique({
+  const product = await prisma.product.findUnique({
     where: { id: Number(id) },
   });
 
-  if (!productId) throw new AppError("Product not found", 404);
+  if (!product) throw new AppError("Product not found", 404);
 
-  res.status(200).json({ data: { productId } });
+  res.status(200).json({
+    success: true,
+    message: "Product found successfully",
+    data: product,
+  });
 });
 
 export const createProducts = catchAsync(
@@ -40,9 +47,9 @@ export const createProducts = catchAsync(
     });
 
     res.status(201).json({
-      message: "successfully created",
-      data: { newProduct },
       success: true,
+      message: "Product created successfully",
+      data: newProduct,
     });
   }
 );
@@ -50,15 +57,22 @@ export const createProducts = catchAsync(
 //pendiente con las relaciones de restricciones
 export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const productId = await prisma.product.delete({
+
+  // Primero verificar si existe
+  const existingProduct = await prisma.product.findUnique({
     where: { id: Number(id) },
   });
 
-  if (!productId) throw new AppError("Product not found", 404);
+  if (!existingProduct) throw new AppError("Product not found", 404);
 
-  res
-    .status(200)
-    .json({ message: "product successfully removed", success: true });
+  await prisma.product.delete({
+    where: { id: Number(id) },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Product successfully removed",
+  });
 });
 
 export const updateProduct = catchAsync(async (req: Request, res: Response) => {
@@ -68,7 +82,7 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
   if (!name || !description || !stock || !price)
     throw new AppError("Please fill in the empty fields", 400);
 
-  const upProduct = await prisma.product.update({
+  const updatedProduct = await prisma.product.update({
     where: { id: Number(id) },
     data: {
       name,
@@ -79,8 +93,8 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
   });
 
   res.status(200).json({
-    message: "successfully updated product",
     success: true,
-    data: { upProduct },
+    message: "Product successfully updated",
+    data: updatedProduct,
   });
 });
