@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 import slowDown from "express-slow-down";
 
 export const limiter = rateLimit({
@@ -9,7 +9,7 @@ export const limiter = rateLimit({
   },
   keyGenerator: (req) => {
     if (req.user?.id) return req.user.id.toString();
-    return req.ip || "anonymous";
+    return ipKeyGenerator(req.ip || "anonymous");
   },
 });
 
