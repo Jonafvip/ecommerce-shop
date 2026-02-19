@@ -71,6 +71,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
     success: true,
     data: {
       id: userExisting.id,
+      username: userExisting.username,
       email: userExisting.email,
       role: userExisting.role,
     },
@@ -95,7 +96,7 @@ export const verifyProfile = catchAsync(async (req: Request, res: Response) => {
       createdAt: true,
     },
   });
-  if (!user) throw new AppError("Usuario no encontrado", 404);
+  if (!user) throw new AppError("User not found", 404);
 
   res.status(200).json({
     success: true,
