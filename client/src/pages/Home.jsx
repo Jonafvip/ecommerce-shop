@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Layout } from "../layout/layout";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuthContext } from "../context/AuthContext";
 //Componentes
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -10,16 +13,28 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
 export const Home = () => {
+  const { user } = useAuthContext();
   const [productsApi, setProductsApi] = useState([]);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.welcome && user) {
+      toast.success(`¡Bienvenido de nuevo ${user.username}!`, {
+        id: "welcome-toast",
+        duration: 4000,
+        position: "top-center",
+      });
+      window.history.replaceState({}, document.title);
+    }
+  }, [location, user]);
 
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/v1/admin/product/",
+        "http://127.0.0.1:8000/api/v1/admin/product/",
         { withCredentials: true }
       );
       setProductsApi(response.data.data);
-      console.log(response.data);
     } catch (error) {
       console.error(error.response.data.errors);
     }
