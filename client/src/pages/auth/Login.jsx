@@ -2,9 +2,12 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { Layout } from "../../layout/layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthContext";
+
+import toast from "react-hot-toast";
 
 const initalValue = {
   email: "",
@@ -13,6 +16,8 @@ const initalValue = {
 
 export const Login = () => {
   const [formValue, setFormValue] = useState(initalValue);
+  const navigate = useNavigate();
+  const { user, setUser } = useAuthContext();
 
   const onChange = (e) => {
     setFormValue({ ...formValue, [e.target.name]: e.target.value });
@@ -22,18 +27,28 @@ export const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/auth/login",
+        "http://127.0.0.1:8000/api/v1/auth/login",
         formValue,
         {
           withCredentials: true,
         }
       );
       setFormValue(initalValue);
-      console.log(response.data.message);
+      setUser(response.data.data);
     } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Ocurrió un error al iniciar sesión"
+      );
       console.error(error.response.data.errors);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { state: { welcome: true }, replace: true });
+    }
+  }, [user, navigate]);
+
   return (
     <Layout>
       <Box
