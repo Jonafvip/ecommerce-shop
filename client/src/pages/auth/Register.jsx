@@ -6,6 +6,8 @@ import { useState } from "react";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 
+import toast from "react-hot-toast";
+
 const initalValue = {
   username: "",
   email: "",
@@ -22,15 +24,19 @@ export const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/auth/register",
+        "http://127.0.0.1:8000/api/v1/auth/register",
         formValue,
         {
           withCredentials: true,
         }
       );
       setFormValue(initalValue);
-      console.log(response.data.message);
+      toast.success(response.data.message || "Usuario registrado con éxito");
     } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Ocurrió un error al registrar el usuario"
+      );
       console.error(error.response.data.errors);
     }
   };
@@ -77,7 +83,9 @@ export const Register = () => {
         </Button>
         <p style={{ textAlign: "center" }}>
           You already have an account?,{" "}
-          <NavLink style={{ textDecoration: "none" }} to="/login">sign in</NavLink>
+          <NavLink style={{ textDecoration: "none" }} to="/login">
+            sign in
+          </NavLink>
         </p>
       </Box>
     </Layout>
