@@ -1,6 +1,12 @@
+import { useAuthContext } from "../context/AuthContext";
 import "./Header.css";
 import { NavLink } from "react-router-dom";
+//componentes
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 export const Header = () => {
+  const { user, onLogout } = useAuthContext();
+
   return (
     <header className="container-header">
       <div className="sub-container">
@@ -11,14 +17,24 @@ export const Header = () => {
         </h2>
         <nav>
           <ul>
-            <li>
-              <NavLink
-                style={{ textDecoration: "none", fontWeight: "bold" }}
-                to="/register"
-              >
-                Log in
-              </NavLink>
-            </li>
+            {user && user.role === "USER" ? (
+              <>
+                <Stack spacing={2} direction="row">
+                  <Button variant="text" onClick={onLogout}>
+                    Logout
+                  </Button>
+                </Stack>
+              </>
+            ) : (
+              <li>
+                <NavLink
+                  style={{ textDecoration: "none", fontWeight: "bold" }}
+                  to="/register"
+                >
+                  Log in
+                </NavLink>
+              </li>
+            )}
           </ul>
         </nav>
       </div>
