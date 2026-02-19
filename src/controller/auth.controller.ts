@@ -81,3 +81,24 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
   res.clearCookie("jwt");
   return res.status(200).json({ message: "Successful session closure" });
 });
+
+export const verifyProfile = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) throw new AppError("No Authenticate", 401);
+
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+  if (!user) throw new AppError("Usuario no encontrado", 404);
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
