@@ -16,6 +16,9 @@ import {
 
 const productRoute = Router();
 
+
+
+
 /**
  * @swagger
  * tags:
@@ -45,9 +48,9 @@ const productRoute = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-productRoute.use(verify);
 productRoute.get("/", getAllProducts);
 
+productRoute.use(verify);
 /**
  * @swagger
  * /api/v1/admin/product/{id}:
