@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
+import { useCartContext } from "../context/CartContext";
 //Componentes
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -14,6 +15,7 @@ import Typography from "@mui/material/Typography";
 
 export const Home = () => {
   const { user } = useAuthContext();
+  const { addToCart } = useCartContext();
   const [productsApi, setProductsApi] = useState([]);
   const location = useLocation();
 
@@ -36,13 +38,38 @@ export const Home = () => {
       );
       setProductsApi(response.data.data);
     } catch (error) {
-      console.error(error.response.data.errors);
+      console.error(
+        "Error al cargar productos:",
+        error.response?.data?.errors || error.message
+      );
     }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const handleAddToCart = async (id) => {
+    try {
+      if (!user) {
+        return toast.error(
+          "Debes iniciar sesion para poder agregar un producto al carrito ",
+          {
+            duration: 4000,
+            position: "top-center",
+          }
+        );
+      }
+      await addToCart(id);
+      toast.success("Producto añadido al carrito");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Ocurrió un error al agregar el producto"
+      );
+      console.error(error.response?.data?.errors);
+    }
+  };
 
   return (
     <Layout>
@@ -99,7 +126,12 @@ export const Home = () => {
             <CardActions
               sx={{ borderTop: "1px solid #eee", justifyContent: "center" }}
             >
-              <Button size="medium" variant="contained" fullWidth>
+              <Button
+                size="medium"
+                variant="contained"
+                fullWidth
+                onClick={() => handleAddToCart(pro.id)}
+              >
                 Add to Cart
               </Button>
             </CardActions>
