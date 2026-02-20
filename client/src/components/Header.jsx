@@ -17,24 +17,27 @@ export const Header = () => {
         </h2>
         <nav>
           <ul>
-            {user && user.role === "USER" ? (
-              <>
+            <ul>
+              {user ? (
                 <Stack spacing={2} direction="row">
+                  <NavLink to="/profile">
+                    <Button variant="text">Profile</Button>
+                  </NavLink>
                   <Button variant="text" onClick={onLogout}>
                     Logout
                   </Button>
                 </Stack>
-              </>
-            ) : (
-              <li>
-                <NavLink
-                  style={{ textDecoration: "none", fontWeight: "bold" }}
-                  to="/register"
-                >
-                  Log in
-                </NavLink>
-              </li>
-            )}
+              ) : (
+                <li>
+                  <NavLink
+                    style={{ textDecoration: "none", fontWeight: "bold" }}
+                    to="/register"
+                  >
+                    Log in
+                  </NavLink>
+                </li>
+              )}
+            </ul>
           </ul>
         </nav>
       </div>
