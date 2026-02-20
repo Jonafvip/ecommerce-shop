@@ -7,6 +7,8 @@ import { Login } from "./pages/auth/Login";
 import { ContextProvider } from "./context/AuthContext";
 
 import { Toaster } from "react-hot-toast";
+import { Profile } from "./pages/Profile";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -19,6 +21,15 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </ContextProvider>
