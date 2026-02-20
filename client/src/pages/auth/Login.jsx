@@ -27,7 +27,7 @@ export const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/auth/login",
+        "http://localhost:8000/api/v1/auth/login",
         formValue,
         {
           withCredentials: true,

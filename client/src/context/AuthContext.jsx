@@ -23,7 +23,7 @@ export const ContextProvider = ({ children }) => {
     const authApi = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/v1/auth/getProfile",
+          "http://localhost:8000/api/v1/auth/getProfile",
           { withCredentials: true }
         );
         setUser(response.data.data);
@@ -46,7 +46,7 @@ export const ContextProvider = ({ children }) => {
       position: "top-center",
     });
     try {
-      await axios.post("http://127.0.0.1:8000/api/v1/auth/logout", "", {
+      await axios.post("http://localhost:8000/api/v1/auth/logout", "", {
         withCredentials: true,
       });
     } catch (error) {

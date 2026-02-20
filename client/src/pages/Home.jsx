@@ -31,7 +31,7 @@ export const Home = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/v1/admin/product/",
+        "http://localhost:8000/api/v1/admin/product/",
         { withCredentials: true }
       );
       setProductsApi(response.data.data);

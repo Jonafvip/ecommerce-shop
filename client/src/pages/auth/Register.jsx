@@ -24,7 +24,7 @@ export const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/auth/register",
+        "http://localhost:8000/api/v1/auth/register",
         formValue,
         {
           withCredentials: true,
