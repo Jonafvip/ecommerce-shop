@@ -1,9 +1,12 @@
 import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 import slowDown from "express-slow-down";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 export const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: (req) => {
+    if (isDev) return 5000;
     if (req.user) return 1000;
     return 100;
   },
@@ -14,10 +17,11 @@ export const limiter = rateLimit({
 });
 
 export const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000, //ventanas de 15 min
-  delayAfter: 50,
+  windowMs: 15 * 60 * 1000,
+  delayAfter: isDev ? 1000 : 50,
   delayMs: (used) => {
-    return (used - 50) * 500;
+    const threshold = isDev ? 1000 : 50;
+    return (used - threshold) * 500;
   },
   maxDelayMs: 2000,
 });
