@@ -111,3 +111,63 @@ export const emptyCart = catchAsync(async (req: Request, res: Response) => {
     message: "Cart emptied successfully",
   });
 });
+
+export const getCart = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  if (!userId) throw new AppError("Not authenticated", 401);
+
+  const cartItems = await prisma.cart.findMany({
+    where: { userId },
+    include: {
+      product: true,
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    data: cartItems,
+  });
+});
+
+export const updateCartQuantity = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (!userId) throw new AppError("Not authenticated", 401);
+
+    const product = await prisma.product.findFirst({
+      where: { id: Number(id) },
+    });
+
+    if (!product) throw new AppError("Product not found", 404);
+    if (product.stock < quantity) {
+      throw new AppError(
+        `Insufficient stock. Only ${product.stock} units available.`,
+        400
+      );
+    }
+
+    const cartItem = await prisma.cart.findFirst({
+      where: {
+        userId: userId,
+        productId: Number(id),
+      },
+    });
+
+    if (!cartItem) throw new AppError("Item not found in cart", 404);
+
+    const updatedItem = await prisma.cart.update({
+      where: { id: cartItem.id },
+      data: { quantity: Number(quantity) },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Cart quantity updated successfully",
+      data: updatedItem,
+    });
+  }
+);
