@@ -3,7 +3,9 @@ import { verify } from "../middleware/auth.middleware.js";
 import {
   addProductToCart,
   emptyCart,
+  getCart,
   removeProductFromCart,
+  updateCartQuantity,
 } from "../controller/cart.controller.js";
 import { validationSchema } from "../validation/schemaValidation.js";
 import {
@@ -21,6 +23,8 @@ const cartRoute = Router();
  */
 
 cartRoute.use(verify);
+
+cartRoute.get("/", getCart);
 
 /**
  * @swagger
@@ -62,6 +66,12 @@ cartRoute.post(
   validationSchema(cartParamsValidation, "params"),
   validationSchema(addProductToCartValidation, "body"),
   addProductToCart
+);
+
+cartRoute.put(
+  "/:id",
+  validationSchema(cartParamsValidation, "params"),
+  updateCartQuantity
 );
 
 /**
