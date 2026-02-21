@@ -5,6 +5,9 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import "./Cart.css";
 
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+
 export const Cart = () => {
   const { cartItems, removeFromCart, clearCart, updateQuantity } =
     useCartContext();
@@ -121,7 +124,11 @@ export const Cart = () => {
               <span>Total</span>
               <span>${totalPrice.toFixed(2)}</span>
             </div>
-            <button className="btn-checkout">Checkout →</button>
+            <Stack spacing={2} direction="row">
+              <NavLink to="/order">
+                <Button variant="contained">Checkout</Button>
+              </NavLink>
+            </Stack>
           </div>
         </div>
       </div>
