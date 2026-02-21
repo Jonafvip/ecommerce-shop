@@ -11,6 +11,7 @@ import { Toaster } from "react-hot-toast";
 import { Profile } from "./pages/Profile";
 import { Cart } from "./pages/cart/Cart";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { Order } from "./pages/cart/Order";
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Cart />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/order"
+                element={
+                  <ProtectedRoute>
+                    <Order />
                   </ProtectedRoute>
                 }
               />
